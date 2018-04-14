@@ -1,6 +1,8 @@
 const fs = require("fs");
 const http = require("http");
+
 const cheerio = require("cheerio");
+const Json2csvParser = require("json2csv").Parser;
 
 const entryUrl = "http://shirts4mike.com/";
 const shirts = [];
@@ -59,15 +61,15 @@ const allShirts = (urls) => {
 const scrapeUrl = (url) => {
     let shirtsObject = {};
 
-    shirtsObject.url = `${entryUrl}${url}`;
+    shirtsObject["url"] = `${entryUrl}${url}`;
     return new Promise((resolve, reject) => {
         getHtmlFromUrl(shirtsObject.url)
             .then(body => {
                 const $ = cheerio.load(body);
 
-                shirtsObject.imageUrl = $('.shirt-picture img').attr('src');
-                shirtsObject.price = $('.shirt-details h1 span').text();
-                shirtsObject.title = $('.shirt-details h1').text();
+                shirtsObject["Image URL"] = entryUrl + $('.shirt-picture img').attr('src');
+                shirtsObject.Price = $('.shirt-details h1 span').text();
+                shirtsObject.Title = $('.shirt-details h1').text();
 
                 return resolve(shirtsObject);
             })
@@ -77,6 +79,20 @@ const scrapeUrl = (url) => {
     });
 
 }
+
+const writeCsv = (json) => {
+    const now = new Date();
+    const csv_filename = "./data/" + now.toISOString().substring(0, 10) + ".csv";
+    const fields = ["Title", "Price", "Image URL", "url"];
+
+    const json2csvParser = new Json2csvParser({ fields });
+    const csv = json2csvParser.parse(json);
+
+    console.log(csv);
+    // const shirtscsv = json2csv({ data: json, fields: fields });
+    fs.writeFileSync(csv_filename, csv);
+
+};
 
 getHtmlFromUrl(`${entryUrl}shirts.php`)
     .then(body => {
@@ -89,7 +105,7 @@ getHtmlFromUrl(`${entryUrl}shirts.php`)
         return allShirts(shirts)
     })
     .then(shirts => {
-        console.log(shirts);
+        writeCsv(shirts);
     })
     .catch(error => {
         console.log(error.message);
