@@ -46,7 +46,13 @@ const getHtmlFromUrl = (url) => {
                 }
             });
             request.on("error", (error) => {
-                return reject(new Error(error.message));
+                let errorMessage = '';
+                if(error.code == "ENOTFOUND") {
+                    errorMessage = `There was an error ( ${error.code} - Cant connect to ${url} )`;
+                } else {
+                    errorMessage = error.message;
+                }
+                return reject(new Error(errorMessage));
             });
         } catch (error) {
             return reject(new Error(error.message));
@@ -98,7 +104,7 @@ const writeCsv = (json) => {
 
 
 if(checkFolder()) {
-    getHtmlFromUrl(`${entryUrl}shirts2.php`)
+    getHtmlFromUrl(`${entryUrl}shirts.php`)
     .then(body => {
         const $ = cheerio.load(body);
 
