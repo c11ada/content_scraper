@@ -23,6 +23,8 @@ const checkFolder = () => {
     }
 }
 
+
+
 const getHtmlFromUrl = (url) => {
     return new Promise((resolve, reject) => {
         try {
@@ -38,14 +40,16 @@ const getHtmlFromUrl = (url) => {
                         return resolve(body);
                     });
                 } else {
-                    return reject(new Error(response.statusCode));
+                    // console.log(http.STATUS_CODES[response.statusCode]);
+                    const errorMessage = `There was an error ( ${response.statusCode} - ${http.STATUS_CODES[response.statusCode]} )`;
+                    return reject(new Error(errorMessage));
                 }
             });
             request.on("error", (error) => {
                 return reject(new Error(error.message));
             });
         } catch (error) {
-            return reject(new Error(error));
+            return reject(new Error(error.message));
         }
     });
 }
@@ -88,13 +92,13 @@ const writeCsv = (json) => {
     const json2csvParser = new Json2csvParser({ fields });
     const csv = json2csvParser.parse(json);
 
-    console.log(csv);
-    // const shirtscsv = json2csv({ data: json, fields: fields });
     fs.writeFileSync(csv_filename, csv);
 
 };
 
-getHtmlFromUrl(`${entryUrl}shirts.php`)
+
+if(checkFolder()) {
+    getHtmlFromUrl(`${entryUrl}shirts2.php`)
     .then(body => {
         const $ = cheerio.load(body);
 
@@ -109,4 +113,13 @@ getHtmlFromUrl(`${entryUrl}shirts.php`)
     })
     .catch(error => {
         console.log(error.message);
+        const now = new Date().toUTCString();
+
+        fs.appendFileSync('scraper-error.log', `${now} - ${error.message}\n`);
     });
+} else {
+    console.log("cant make folder");
+    const now = new Date().toUTCString();
+    fs.appendFileSync('scraper-error.log', `${now} - cant make folder \n`);
+}
+
