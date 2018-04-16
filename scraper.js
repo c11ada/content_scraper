@@ -89,6 +89,7 @@ const scrapeUrl = (url) => {
                 shirtsObject["Image URL"] = entryUrl + $('.shirt-picture img').attr('src');
                 shirtsObject.Price = $('.shirt-details h1 span').text();
                 shirtsObject.Title = $('.shirt-details h1').text();
+                shirtsObject.Time = new Date().toUTCString();
 
                 return resolve(shirtsObject);
             })
@@ -103,7 +104,7 @@ const scrapeUrl = (url) => {
 const writeCsv = (json) => {
     const now = new Date();
     const csv_filename = "./data/" + now.toISOString().substring(0, 10) + ".csv";
-    const fields = ["Title", "Price", "Image URL", "url"];
+    const fields = ["Title", "Price", "Image URL", "URL", "Time"];
 
     const json2csvParser = new Json2csvParser({ fields });
     const csv = json2csvParser.parse(json);
