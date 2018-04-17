@@ -80,9 +80,9 @@ const allShirts = (urls) => {
 const scrapeUrl = (url) => {
     let shirtsObject = {};
 
-    shirtsObject["url"] = `${entryUrl}${url}`;
+    shirtsObject.URL = `${entryUrl}${url}`;
     return new Promise((resolve, reject) => {
-        getHtmlFromUrl(shirtsObject.url)
+        getHtmlFromUrl(shirtsObject.URL)
             .then(body => {
                 const $ = cheerio.load(body);
 
@@ -91,6 +91,7 @@ const scrapeUrl = (url) => {
                 shirtsObject.Title = $('.shirt-details h1').text();
                 shirtsObject.Time = new Date().toUTCString();
 
+                console.log(shirtsObject);
                 return resolve(shirtsObject);
             })
             .catch(error => {
